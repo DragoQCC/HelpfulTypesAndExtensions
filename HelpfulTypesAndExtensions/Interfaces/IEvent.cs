@@ -10,8 +10,6 @@ public record EventMetaData
     public DateTime CreationTime { get; init; } = DateTime.UtcNow;
 }
 
-
-
 public interface IEventArgs;
 
 public interface IEventArgs<TEvent> : IEventArgs where TEvent : IEvent;

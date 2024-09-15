@@ -5,23 +5,19 @@ using HelpfulTypesAndExtensions.Interfaces;
 
 namespace Testing;
 
-class Program
+public class Program
 {
-    static async Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        /*Counter counter = new();
+        Counter counter = new();
         await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached);
         await counter.ThresholdEventNoArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached);
         
         for (int i = 0; i < 15; i++)
         {
             await counter.Increment();
-        }*/
-        
-        EventExample.Start();
+        }
     }
-    
-    
 }
 
 public static class CounterEventHandlers
