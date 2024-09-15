@@ -6,36 +6,53 @@ namespace HelpfulTypesAndExtensions.Interfaces;
 
 public record EventMetaData
 {
-    public DateTime LastEventTime { get; set; }
-    public DateTime CreationTime { get; init; }
-    
-    
-    public EventMetaData()
-    {
-        CreationTime = DateTime.UtcNow;
-        LastEventTime = DateTime.UtcNow;
-    }
+    public DateTime LastEventTime { get; set; } = DateTime.UtcNow;
+    public DateTime CreationTime { get; init; } = DateTime.UtcNow;
 }
 
 
-//need to fill in, might make generic
-public interface IEventArgs<TEvent> where TEvent : IEvent<TEvent>
-{
-    
-}
 
-public interface IEvent<TEvent> : IEventArgs<TEvent> where TEvent : IEvent<TEvent>
+public interface IEventArgs;
+
+public interface IEventArgs<TEvent> : IEventArgs where TEvent : IEvent;
+
+
+public interface IEvent;
+
+public interface IEvent<TEvent> : IEvent
+where TEvent : IEvent
 {
     public EventMetaData EventMetaData { get; init; }
     public List<Subscription<TEvent>> Subscribers { get; init; }
-
-    public IEventArgs<TEvent>? EventArgs { get; set; }
-
+    
+    public async Task RaiseEvent()
+    {
+        EventMetaData.LastEventTime = DateTime.Now;
+        try
+        {
+            await NotifySubscribers();
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+    
     public async Task<Subscription<TEvent>> Subscribe(SubscriptionRequest<TEvent> subscriptionRequest)
     {
         Subscription<TEvent> subscription = new(subscriptionRequest);
         await AddSubscriber(subscription);
         return subscription;
+    }
+    
+    public async Task<bool> Unsubscribe(Subscription<TEvent> subscription)
+    {
+        if(Subscribers.Contains(subscription))
+        {
+            await RemoveSubscriber(subscription);
+            return true;
+        }
+        return false;
     }
     
     public async Task DeleteEvent()
@@ -55,8 +72,8 @@ public interface IEvent<TEvent> : IEventArgs<TEvent> where TEvent : IEvent<TEven
         }
         Subscribers.Add(subscription);
         Console.WriteLine("Adding subscriber");
-        Console.WriteLine("Subscribers: " + Subscribers.Count);
-        _ = Task.Run(async () => await subscription.HandleSubscribe((TEvent)this));
+        //TODO: Eval performance with long running or error prone event handlers
+        await subscription.HandleSubscribe((TEvent)this);
     }
     
     public async Task RemoveSubscriber(Subscription<TEvent> subscription)
@@ -68,14 +85,19 @@ public interface IEvent<TEvent> : IEventArgs<TEvent> where TEvent : IEvent<TEven
         await subscription.DisposeAsync();
     }
     
-    public async Task NotifySubscribers(IEventArgs<TEvent>? args = null)
+    public async Task NotifySubscribers()
     {
-        Console.WriteLine("Notifying subscribers");
-        Console.WriteLine("Subscriber Count: " + Subscribers.Count);
-        EventArgs = args;
         foreach (Subscription<TEvent> subscription in Subscribers)
         {
-            await subscription.HandleEventExecute((TEvent)this);
+            try
+            {
+                //TODO: Eval performance with long running or error prone event handlers
+                await subscription.HandleEventExecute((TEvent)this);
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
    
@@ -83,27 +105,50 @@ public interface IEvent<TEvent> : IEventArgs<TEvent> where TEvent : IEvent<TEven
     {
         return @event.Subscribe(subscriptionRequest).Result;
     } 
+}
+
+public interface IEvent<TEvent,TEventArgs> : IEvent<TEvent>
+where TEvent : IEvent
+where TEventArgs : IEventArgs<TEvent>
+{
+    public TEventArgs EventArgs { get; set; }
+
     
-    /*public static Subscription<TEvent> operator +(IEvent<TEvent> @event, TEvent event2)
+    public async Task RaiseEvent(TEventArgs args)
     {
-        @event = event2;
-        return (TEvent)@event;
-    } */
+        EventMetaData.LastEventTime = DateTime.Now;
+        EventArgs = args;
+        try
+        {
+            await NotifySubscribers();
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+   
+    public static Subscription<TEvent> operator +(IEvent<TEvent,TEventArgs> @event, SubscriptionRequest<TEvent> subscriptionRequest)
+    {
+        return @event.Subscribe(subscriptionRequest).Result;
+    } 
 }
 
 
 
-public record struct SubscriptionRequest<TEvent> where TEvent : IEvent<TEvent>
+public record struct SubscriptionRequest<TEvent> where TEvent : IEvent
 {
     public Func<TEvent, ValueTask> OnEventExecute { get; init; }
     public Func<Task>? OnUnsubscribe { get; init; }
     public Func<TEvent,Task>? OnSubscribe { get; init; }
+    public Action<Exception>? ExceptionHandler { get; init; }
     
-    public SubscriptionRequest(Func<TEvent, ValueTask> onEventExecute, Func<TEvent,Task>? onSubscribe = null, Func<Task>? onUnsubscribe = null)
+    public SubscriptionRequest(Func<TEvent, ValueTask> onEventExecute, Func<TEvent,Task>? onSubscribe = null, Func<Task>? onUnsubscribe = null, Action<Exception>? exceptionHandler = null)
     {
         OnEventExecute = onEventExecute;
         OnUnsubscribe = onUnsubscribe;
         OnSubscribe = onSubscribe;
+        ExceptionHandler = exceptionHandler;
     }
     
     public static implicit operator SubscriptionRequest<TEvent>(Func<TEvent, ValueTask> onEventExecute)
@@ -115,23 +160,24 @@ public record struct SubscriptionRequest<TEvent> where TEvent : IEvent<TEvent>
 
 
 public sealed record Subscription<TEvent> : IDisposable, IAsyncDisposable
-where TEvent : IEvent<TEvent>
+where TEvent : IEvent
 {
     private Func<TEvent, ValueTask> OnEventExecute { get; set; }
     private Func<Task>? OnUnsubscribe { get; init; }
     private Func<TEvent,Task>? OnSubscribe { get; init; }
-    
+    private Action<Exception>? ExceptionHandler { get; init; }
     internal CancellationToken SubCancelToken { get; init; }
     internal CancellationTokenSource SubCancelTokenSource { get; init; }
     
     private bool _isDisposed;
     
     
-    public Subscription(Func<TEvent, ValueTask> onEventExecute, Func<TEvent,Task>? onSubscribe = null, Func<Task>? onUnsubscribe = null)
+    public Subscription(Func<TEvent, ValueTask> onEventExecute, Func<TEvent,Task>? onSubscribe = null, Func<Task>? onUnsubscribe = null, Action<Exception>? exceptionHandler = null)
     {
         OnEventExecute = onEventExecute;
         OnUnsubscribe = onUnsubscribe;
         OnSubscribe = onSubscribe;
+        ExceptionHandler = exceptionHandler;
         SubCancelTokenSource = new();
         SubCancelToken = SubCancelTokenSource.Token;
     }
@@ -141,6 +187,7 @@ where TEvent : IEvent<TEvent>
         OnEventExecute = subscriptionRequest.OnEventExecute;
         OnUnsubscribe = subscriptionRequest.OnUnsubscribe;
         OnSubscribe = subscriptionRequest.OnSubscribe;
+        ExceptionHandler = subscriptionRequest.ExceptionHandler;
         SubCancelTokenSource = new();
         SubCancelToken = SubCancelTokenSource.Token;
     }
@@ -170,7 +217,7 @@ where TEvent : IEvent<TEvent>
         }
     }
     
-    public async ValueTask HandleEventExecute(TEvent @event, Action<Exception>? exceptionHandler = null)
+    public async ValueTask HandleEventExecute(TEvent @event)
     {
         try
         {
@@ -182,9 +229,9 @@ where TEvent : IEvent<TEvent>
         }
         catch (Exception e)
         {
-            if (exceptionHandler is not null)
+            if (ExceptionHandler is not null)
             {
-                exceptionHandler.Invoke(e);
+                ExceptionHandler.Invoke(e);
             }
             else
             {

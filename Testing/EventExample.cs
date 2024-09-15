@@ -1,4 +1,4 @@
-/*namespace ClassicEventExample;
+namespace ClassicEventExample;
 
 public class EventExample
 {
@@ -6,20 +6,24 @@ public class EventExample
     {
         Counter counter = new Counter();
         counter.ThresholdReached += HandleCounterThresholdReached;
+        counter.ThresholdReachedNoArgs += HandleCounterThresholdReached;
 
-        Console.WriteLine("press 'a' key to increase total");
-        while (Console.ReadKey(true).KeyChar == 'a')
+        for (int i = 0; i < 15; i++)
         {
-            Console.WriteLine("adding one");
-            counter.Add(1);
+            counter.Add();
         }
     }
 
-    static void HandleCounterThresholdReached(object sender, ThresholdReachedEventArgs e)
+    static void HandleCounterThresholdReached(object? sender, ThresholdReachedEventArgs e)
     {
         Console.WriteLine($"Threshold: {e.Threshold}");
         Console.WriteLine($"Current count: {e.CurrentCount}");
         Console.WriteLine($"Threshold reached at: {e.ThresholdReachedTime}");
+    }
+    
+    static void HandleCounterThresholdReached(object? sender, EventArgs e)
+    {
+        Console.WriteLine("Threshold reached");
     }
 }
 
@@ -28,42 +32,29 @@ class Counter
     private int threshold = 10;
     private int count;
     private DateTime thresholdReachedTime;
-    public event EventHandler<ThresholdReachedEventArgs> ThresholdReached;
+    public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;
+    public event EventHandler? ThresholdReachedNoArgs;
 
-    public void Add(int x)
+    public void Add()
     {
-        count += x;
-        if (count >= threshold)
+        count++;
+        if (count < threshold)
         {
-            if (thresholdReachedTime == DateTime.MinValue)
-            {
-                thresholdReachedTime = DateTime.Now;
-            }
-            ThresholdReachedEventArgs args = new ThresholdReachedEventArgs(threshold, count, thresholdReachedTime);
-            OnThresholdReached(args);
+            return;
         }
-    }
-
-    protected virtual void OnThresholdReached(ThresholdReachedEventArgs e)
-    {
-        EventHandler<ThresholdReachedEventArgs> handler = ThresholdReached;
-        if (handler != null)
+        if (thresholdReachedTime == DateTime.MinValue)
         {
-            handler(this, e);
+            thresholdReachedTime = DateTime.Now;
         }
+        ThresholdReachedEventArgs args = new ThresholdReachedEventArgs(threshold, count, thresholdReachedTime);
+        ThresholdReached?.Invoke(this, args);
+        ThresholdReachedNoArgs?.Invoke(this, EventArgs.Empty);
     }
 }
 
-public class ThresholdReachedEventArgs : EventArgs
+public class ThresholdReachedEventArgs(int threshold, int currentCount, DateTime thresholdReachedTime) : EventArgs
 {
-    public int Threshold { get; set; }
-    public int CurrentCount {get; set;}
-    public DateTime ThresholdReachedTime { get; set; }
-    
-    public ThresholdReachedEventArgs(int threshold, int currentCount, DateTime thresholdReachedTime)
-    {
-        Threshold = threshold;
-        CurrentCount = currentCount;
-        ThresholdReachedTime = thresholdReachedTime;
-    }
-}*/
+    public int Threshold { get; set; } = threshold;
+    public int CurrentCount {get; set;} = currentCount;
+    public DateTime ThresholdReachedTime { get; set; } = thresholdReachedTime;
+}

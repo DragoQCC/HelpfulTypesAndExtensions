@@ -2,7 +2,7 @@ using HelpfulTypesAndExtensions.Interfaces;
 
 namespace HelpfulTypesAndExtensions.BaseClasses;
 
-public class TaskingEvent : IEvent<TaskingEvent>
+/*public class TaskingEvent : IEvent<TaskingEvent>
 {
     /// <inheritdoc />
     public EventMetaData EventMetaData { get; init; } = new();
@@ -45,32 +45,28 @@ public class TaskingEvent : IEvent<TaskingEvent>
         }
     }
     
-}
+}*/
 
-public class GenericEvent : IEvent<GenericEvent>
+public abstract record GenericEvent<TEvent> : IEvent<TEvent>
+where TEvent : IEvent<TEvent>
 {
     /// <inheritdoc />
     public EventMetaData EventMetaData { get; init; } = new();
+
     /// <inheritdoc />
-    public List<Subscription<GenericEvent>> Subscribers { get; init; } = new();
+    public List<Subscription<TEvent>> Subscribers { get; init; } = new();
+}
+
+public abstract record GenericEvent<TEvent,TEventArgs> : IEvent<TEvent,TEventArgs>
+where TEvent : IEvent<TEvent,TEventArgs>
+where TEventArgs : IEventArgs<TEvent>
+{
+    /// <inheritdoc />
+    public EventMetaData EventMetaData { get; init; } = new();
     
     /// <inheritdoc />
-    public IEventArgs<GenericEvent>? EventArgs { get; set; }
-
-
-    public async Task RaiseEvent(IEventArgs<GenericEvent>? args = null)
-    {
-        EventMetaData.LastEventTime = DateTime.Now;
-        try
-        {
-            Console.WriteLine($"Raising Event, Subscriber Count: {Subscribers.Count}");
-            await this.NotifySubscribers(args);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("Caught an exception inside raiseEvent call: " +e);
-            throw;
-        }
-    }
+    public List<Subscription<TEvent>> Subscribers { get; init; } = new();
     
+    /// <inheritdoc />
+    public TEventArgs EventArgs { get; set; }
 }
