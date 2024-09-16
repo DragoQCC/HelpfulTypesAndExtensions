@@ -57,5 +57,42 @@ public static class CollectionExtensions
     /// <returns></returns>
     public static string ToCommaSeparatedString<T>(this IEnumerable<T> source, Func<T, string> selector) => string.Join(", ", source.Select(selector));
     
+    public static void DisposeItems(this IEnumerable<IDisposable?> collection)
+    {
+        foreach (IDisposable? item in collection)
+        {
+            if (item == null)
+            {
+                continue;
+            }
+            try
+            {
+                item.Dispose();
+            }
+            catch (Exception)
+            {
+                // log exception and continue
+            }
+        }
+    }
+    
+    public static async Task DisposeItemsAsync(this IEnumerable<IAsyncDisposable?> collection)
+    {
+        foreach (IAsyncDisposable? item in collection)
+        {
+            if (item == null)
+            {
+                continue;
+            }
+            try
+            {
+                await item.DisposeAsync();
+            }
+            catch (Exception)
+            {
+                // log exception and continue
+            }
+        }
+    }
     
 }

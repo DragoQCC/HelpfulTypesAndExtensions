@@ -8,6 +8,9 @@ public record EventMetaData
 {
     public DateTime LastEventTime { get; set; } = DateTime.UtcNow;
     public DateTime CreationTime { get; init; } = DateTime.UtcNow;
+    
+    //If the type of the event provider is known at compile time because we are subscribing to an event that class exposes should this be a generic type?
+    public object? EventCaller { get; set; } = null;
 }
 
 public interface IEventArgs;
@@ -23,9 +26,10 @@ where TEvent : IEvent
     public EventMetaData EventMetaData { get; init; }
     public List<Subscription<TEvent>> Subscribers { get; init; }
     
-    public async Task RaiseEvent()
+    public async Task RaiseEvent<TCaller>(TCaller? eventCaller = null) where TCaller : class?
     {
         EventMetaData.LastEventTime = DateTime.Now;
+        EventMetaData.EventCaller = eventCaller;
         try
         {
             await NotifySubscribers();
@@ -83,6 +87,8 @@ where TEvent : IEvent
         await subscription.DisposeAsync();
     }
     
+    //Currently without any exception handler passed in the subscription request the event will throw an exception if an exception is thrown by a subscriber
+    //this then blocks the execution of the rest of the subscribers
     public async Task NotifySubscribers()
     {
         foreach (Subscription<TEvent> subscription in Subscribers)
@@ -92,9 +98,9 @@ where TEvent : IEvent
                 //TODO: Eval performance with long running or error prone event handlers
                 await subscription.HandleEventExecute((TEvent)this);
             }
-            catch
+            catch(Exception ex)
             {
-                throw;
+                subscription.TryHandleException(ex);
             }
         }
     }
@@ -112,9 +118,10 @@ where TEventArgs : IEventArgs<TEvent>
     public TEventArgs EventArgs { get; set; }
 
     
-    public async Task RaiseEvent(TEventArgs args)
+    public async Task RaiseEvent(TEventArgs args, object? eventCaller = null)
     {
         EventMetaData.LastEventTime = DateTime.Now;
+        EventMetaData.EventCaller = eventCaller;
         EventArgs = args;
         try
         {
@@ -190,6 +197,10 @@ where TEvent : IEvent
         SubCancelToken = SubCancelTokenSource.Token;
     }
     
+    ~Subscription()
+    {
+        Dispose();
+    }
     
     internal async Task HandleSubscribe(TEvent @event)
     {
@@ -225,23 +236,18 @@ where TEvent : IEvent
             }
             await OnEventExecute(@event);
         }
-        catch (Exception e)
+        catch
         {
-            if (ExceptionHandler is not null)
-            {
-                ExceptionHandler.Invoke(e);
-            }
-            else
-            {
-                throw;
-            }
+            throw;
         }
     }
     
+    internal void TryHandleException(Exception ex) => ExceptionHandler?.Invoke(ex);
     
     /// <inheritdoc />
     public void Dispose()
     {
+        Console.WriteLine("Disposing subscription");
         if (_isDisposed)
         {
             return;
@@ -255,6 +261,7 @@ where TEvent : IEvent
     /// <inheritdoc />
     public async ValueTask DisposeAsync()
     {
+        Console.WriteLine("Disposing subscription async");
         if(_isDisposed)
         {
             return;

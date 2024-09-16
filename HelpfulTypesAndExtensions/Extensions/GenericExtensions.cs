@@ -202,4 +202,5 @@ public static class GenericExtensions
         [CallerLineNumber] int sourceLineNumber = 0, 
         [CallerArgumentExpression(nameof(value))] string? message = "") 
         => value ?? throw new NullReferenceException($"Object {message} is null, \n\t type is: {typeof(T)}, \n\t method: {memberName}, \n\t file: {sourceFilePath}, \n\t line: {sourceLineNumber}");
+    
 }
