@@ -1,8 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Xml.Schema;
-
-namespace HelpfulTypesAndExtensions.Interfaces;
+﻿namespace HelpfulTypesAndExtensions.Interfaces;
 
 public record EventMetadata
 {
@@ -10,8 +6,13 @@ public record EventMetadata
     public DateTime LastEventTime { get; set; } = DateTime.UtcNow;
     public DateTime CreationTime { get; init; } = DateTime.UtcNow;
     //If the type of the event provider is known at compile time because we are subscribing to an event that class exposes should this be a generic type?
-    public object? EventCaller { get; set; } = null;
+    public object? EventCaller { get; set; }
     public EventPriority Priority { get; init; } = EventPriority.Medium;
+    
+    internal ParallelOptions ParallelOptions = new()
+    {
+        MaxDegreeOfParallelism =  EventingConfiguration.EventingOptionsInternal.MaxThreadsPerEvent
+    };
 }
 
 public enum EventPriority
@@ -34,20 +35,14 @@ public interface IEvent<TEvent> : IEvent
 where TEvent : IEvent
 {
     public EventMetadata Metadata { get; init; }
-    public List<Subscription<TEvent>> Subscribers { get; init; }
+    public HashSet<Subscription<TEvent>> Subscribers { get; init; }
     
+
     public async Task RaiseEvent<TCaller>(TCaller? eventCaller = null) where TCaller : class?
     {
         Metadata.LastEventTime = DateTime.Now;
         Metadata.EventCaller = eventCaller;
-        try
-        {
-            await NotifySubscribers();
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        await NotifySubscribers();
     }
     
     public async Task<Subscription<TEvent>> Subscribe(SubscriptionRequest<TEvent> subscriptionRequest)
@@ -83,7 +78,6 @@ where TEvent : IEvent
             return;
         }
         Subscribers.Add(subscription);
-        Console.WriteLine("Adding subscriber");
         //TODO: Eval performance with long running or error prone event handlers
         await subscription.HandleSubscribe((TEvent)this);
     }
@@ -101,17 +95,34 @@ where TEvent : IEvent
     //this then blocks the execution of the rest of the subscribers
     public async Task NotifySubscribers()
     {
-        foreach (Subscription<TEvent> subscription in Subscribers)
+        if(EventingConfiguration.EventingOptionsInternal.SyncType == EventingSyncType.Sync)
         {
-            try
+            foreach (Subscription<TEvent> subscription in Subscribers)
             {
-                //TODO: Eval performance with long running or error prone event handlers
-                await subscription.HandleEventExecute((TEvent)this);
+                try
+                {
+                    await subscription.HandleEventExecute((TEvent)this);
+                }
+                catch(Exception ex)
+                {
+                    subscription.TryHandleException(ex);
+                }
             }
-            catch(Exception ex)
+        }
+        else
+        {
+            
+            await Parallel.ForEachAsync(Subscribers, Metadata.ParallelOptions, async (subscription, parallelCancelToken) =>
             {
-                subscription.TryHandleException(ex);
-            }
+                try
+                {
+                    await subscription.HandleEventExecute((TEvent)this);
+                }
+                catch(Exception ex)
+                {
+                    subscription.TryHandleException(ex);
+                }
+            });
         }
     }
    
@@ -133,14 +144,7 @@ where TEventArgs : IEventArgs<TEvent>
         Metadata.LastEventTime = DateTime.Now;
         Metadata.EventCaller = eventCaller;
         EventArgs = args;
-        try
-        {
-            await NotifySubscribers();
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+        await NotifySubscribers();
     }
    
     public static Subscription<TEvent> operator +(IEvent<TEvent,TEventArgs> @event, SubscriptionRequest<TEvent> subscriptionRequest)
@@ -174,14 +178,16 @@ public record struct SubscriptionRequest<TEvent> where TEvent : IEvent
 }
 
 
-public sealed record Subscription<TEvent> : IDisposable, IAsyncDisposable
+public interface ISubscription : IDisposable, IAsyncDisposable;
+
+public sealed record Subscription<TEvent> : ISubscription
 where TEvent : IEvent
 {
     private Func<TEvent, ValueTask> OnEventExecute { get; set; }
     private Func<Task>? OnUnsubscribe { get; init; }
     private Func<TEvent,Task>? OnSubscribe { get; init; }
     private Action<Exception>? ExceptionHandler { get; init; }
-    internal CancellationToken SubCancelToken { get; init; }
+    public CancellationToken SubCancelToken { get; init; }
     internal CancellationTokenSource SubCancelTokenSource { get; init; }
     
     private bool _isDisposed;
@@ -218,10 +224,6 @@ where TEvent : IEvent
         {
             await OnSubscribe.Invoke(@event);
         }
-        else
-        {
-            await Task.CompletedTask;
-        }
     }
     
     internal async Task HandleUnsubscribe()
@@ -238,18 +240,11 @@ where TEvent : IEvent
     
     public async ValueTask HandleEventExecute(TEvent @event)
     {
-        try
+        if(SubCancelToken.IsCancellationRequested)
         {
-            if(SubCancelToken.IsCancellationRequested)
-            {
-                return;
-            }
-            await OnEventExecute(@event);
+            return;
         }
-        catch
-        {
-            throw;
-        }
+        await OnEventExecute(@event);
     }
     
     internal void TryHandleException(Exception ex) => ExceptionHandler?.Invoke(ex);

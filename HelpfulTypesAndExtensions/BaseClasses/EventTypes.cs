@@ -9,7 +9,7 @@ public abstract record GenericEvent<TEvent> : IEvent<TEvent>
     public EventMetadata Metadata { get; init; } = new();
 
     /// <inheritdoc />
-    public List<Subscription<TEvent>> Subscribers { get; init; } = new();
+    public HashSet<Subscription<TEvent>> Subscribers { get; init; } = new();
 }
 
 public abstract record GenericEvent<TEvent,TEventArgs> : IEvent<TEvent,TEventArgs>
@@ -20,7 +20,7 @@ public abstract record GenericEvent<TEvent,TEventArgs> : IEvent<TEvent,TEventArg
     public EventMetadata Metadata { get; init; } = new();
     
     /// <inheritdoc />
-    public List<Subscription<TEvent>> Subscribers { get; init; } = new();
+    public HashSet<Subscription<TEvent>> Subscribers { get; init; } = new();
     
     /// <inheritdoc />
     public TEventArgs EventArgs { get; set; }

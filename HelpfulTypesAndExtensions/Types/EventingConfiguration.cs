@@ -37,6 +37,15 @@ public class EventingOptions
 // Stores the configuration for the eventing system
 public class EventingConfiguration
 {
+    public EventingOptions EventingOptions { get; init; }
+    internal static EventingOptions EventingOptionsInternal { get; set; } = new();
+    
+    public EventingConfiguration(Action<EventingOptions>? setOptions = null)
+    {
+        EventingOptions = new();
+        setOptions?.Invoke(EventingOptions);
+        EventingOptionsInternal = EventingOptions;
+    }
     
 }
 
@@ -44,5 +53,5 @@ public class EventingConfiguration
 public enum EventingSyncType
 {
     Sync,
-    Async
+    Async,
 }

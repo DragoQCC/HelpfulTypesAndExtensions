@@ -1,4 +1,5 @@
-﻿using ClassicEventExample;
+﻿using System.Diagnostics;
+using ClassicEventExample;
 using HelpfulTypesAndExtensions;
 using HelpfulTypesAndExtensions.BaseClasses;
 using HelpfulTypesAndExtensions.Interfaces;
@@ -7,23 +8,52 @@ namespace Testing;
 
 public class Program
 {
+    public static int EventInvocationLimit { get; set; } = 10;
+    public static int EventInvocationCount { get; set; } = 0;
+    
+    public static int MaxSubscriberCount { get; set; } = 100;
+    
+    public static string NewEventLogFile = "C:\\BlogPostContent\\EventingFramework\\NewEventLog.txt";
+    public static string ClassicEventLogFile = "C:\\BlogPostContent\\EventingFramework\\ClassicEventLog.txt";
+    
+    private static Stopwatch _stopwatch = new();
+    
     public static async Task Main(string[] args)
     {
-        Console.WriteLine("Main Program Started");
+        EventingConfiguration eventingConfiguration = new(options =>
+        {
+            options.SyncType = EventingSyncType.Async;
+            options.MaxThreadsPerEvent = -1;
+        });
         await RunCounter();
-        Console.WriteLine("Main Program Finished, press any key to exit");
-        Console.ReadLine();
     }
 
     public static async Task RunCounter()
     {
+        Console.WriteLine("Starting Custom Event Example");
+        _stopwatch.Start();
         Counter counter = new();
-        await using var subscription1 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached);
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < MaxSubscriberCount; i++)
+        {
+            await counter.ThresholdEventNoArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdWithoutArgs);
+        }
+        
+        for (int i = EventInvocationCount; i < EventInvocationLimit; i++)
         {
             await counter.Increment();
         }
-        Console.WriteLine("Counter processing finished");
+        Console.WriteLine("Finished Custom Event Example");
+        _stopwatch.Stop();
+        Console.WriteLine($"Elapsed time: {_stopwatch.ElapsedMilliseconds} ms");
+        Console.WriteLine();
+        
+        Console.WriteLine("Starting Classic Event Example");
+        _stopwatch.Restart();
+        await EventExample.Start();
+        Console.WriteLine("Finished Classic Event Example");
+        _stopwatch.Stop();
+        Console.WriteLine($"Elapsed time: {_stopwatch.ElapsedMilliseconds} ms");
+        
     }
 }
 
@@ -33,15 +63,25 @@ public class Program
 public static class CounterEventHandlers
 {
 
-    public static async Task<List<Subscription<CounterThresholdEvent<CounterThresholdEventArgs>>>> SubscribeToCounterEvents(Counter counter)
+    public static async Task<List<ISubscription>> SubscribeToCounterEvents(Counter counter)
     {
-        var subscription1 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached);
-        var subscription2 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached2);
-        var subscription3 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached3, exceptionHandler: (e) => Console.WriteLine($"Exception handled: {e.Message}"));
-        return [subscription1,subscription2,subscription3];
+        var subscription1 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached1);
+        var subscription2 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached2, exceptionHandler: (e) => Console.WriteLine($"Exception handled: {e.Message}"));
+        var subscription3 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached3 );
+        var subscription4 = await counter.ThresholdEventWithArgs.Subscribe(CounterEventHandlers.HandleCounterThresholdReached4);
+        return [subscription1,subscription2,subscription3,subscription4];
     }
     
-    public static async ValueTask HandleCounterThresholdReached(CounterThresholdEvent<CounterThresholdEventArgs> @event)
+    public static async ValueTask HandleCounterThresholdWithoutArgs(CounterThresholdEvent @event)
+    {
+        DateTime startTime = DateTime.UtcNow;
+        await Task.Delay(100);
+        DateTime endTime = DateTime.UtcNow;
+        Debug.WriteLine($"New Event #{Program.EventInvocationCount} : Start: {startTime:MM/dd/yyyy hh:mm:ss.fff} : End: {endTime:MM/dd/yyyy hh:mm:ss.fff}");
+    }
+    
+    // This first event subscriber runs without issues
+    public static async ValueTask HandleCounterThresholdReached1(CounterThresholdEvent<CounterThresholdEventArgs> @event)
     {
         Console.WriteLine("Event Subscriber #1");
         CounterThresholdEventArgs args = @event.EventArgs;
@@ -57,24 +97,27 @@ public static class CounterEventHandlers
         Console.WriteLine("Event Subscriber #2");
         Console.WriteLine("Mock Exception Throwing without handler");
         throw new Exception("Mock Exception Thrown");
-        Console.WriteLine();
-        await Task.Delay(1000);
     }
     
-    //This third event subscriber is going to throw an exception but it will have registered an exception handler
+    //This third event subscriber is going to run forever
     public static async ValueTask HandleCounterThresholdReached3(CounterThresholdEvent<CounterThresholdEventArgs> @event)
     {
         Console.WriteLine("Event Subscriber #3");
         Console.WriteLine("Mock Exception Throwing with handler");
-        throw new Exception("Mock Exception Thrown");
-        Console.WriteLine();
-        await Task.Delay(1000);
+        while (true)
+        {
+            await Task.Delay(1000);
+            Console.WriteLine("Still running");
+        }
     }
     
-    public static async ValueTask HandleCounterThresholdReached(CounterThresholdEvent @event)
+    // this fourth one is back to a normal event subscriber
+    public static async ValueTask HandleCounterThresholdReached4(CounterThresholdEvent<CounterThresholdEventArgs> @event)
     {
-        Console.WriteLine($"\t Event metadata: {@event.Metadata}");
-        Console.WriteLine($"\t Event Caller: {@event.Metadata.EventCaller}");
+        Console.WriteLine("Event Subscriber #4");
+        CounterThresholdEventArgs args = @event.EventArgs;
+        Console.WriteLine("\t Event args:");
+        Console.WriteLine($"\t\t {args}");
         Console.WriteLine();
         await Task.Delay(1000);
     }
@@ -86,14 +129,13 @@ public class Counter
     public CounterThresholdEvent<CounterThresholdEventArgs> ThresholdEventWithArgs { get; } = new();
     public CounterThresholdEvent ThresholdEventNoArgs { get; } = new();
     
-    public int Count { get; set; }
-    private int Threshold { get; set; } = 10;
+    private int Threshold { get; set; } = 0;
     private DateTime ThresholdReachedTime { get; set; }
 
     public async Task Increment()
     {
-        Count++;
-        if (Count < Threshold)
+        Program.EventInvocationCount++;
+        if (Program.EventInvocationCount < Threshold)
         {
             return;
         }
@@ -101,41 +143,9 @@ public class Counter
         {
             ThresholdReachedTime = DateTime.Now;
         }
-        Console.WriteLine("Raising threshold event");
         await ThresholdEventNoArgs.RaiseEvent(this);
-        Console.WriteLine("Raising threshold event with args");
-        var args = new CounterThresholdEventArgs(Threshold, Count, ThresholdReachedTime);
-        await ThresholdEventWithArgs.RaiseEvent(args,this);
     }
 }
-
-/*public class OtherCounter
-{
-    public CounterThresholdEvent<CounterThresholdEventArgs> ThresholdEventWithArgs { get; } = new();
-    public CounterThresholdEvent ThresholdEventNoArgs { get; } = new();
-    
-    public int Count { get; set; }
-    private int Threshold { get; set; } = 5;
-    private DateTime ThresholdReachedTime { get; set; }
-
-    public async Task Increment()
-    {
-        Count++;
-        if (Count < Threshold)
-        {
-            return;
-        }
-        if(ThresholdReachedTime == DateTime.MinValue)
-        {
-            ThresholdReachedTime = DateTime.Now;
-        }
-        Console.WriteLine("Raising threshold event");
-        await ThresholdEventNoArgs.RaiseEvent(this);
-        Console.WriteLine("Raising threshold event with args");
-        var args = new CounterThresholdEventArgs(Threshold, Count, ThresholdReachedTime);
-        await ThresholdEventWithArgs.RaiseEvent(args,this);
-    }
-}*/
 
 
 public record CounterThresholdEvent() : GenericEvent<CounterThresholdEvent>;
