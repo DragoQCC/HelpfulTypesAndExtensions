@@ -15,7 +15,7 @@ public class EventingOptions
     
     //If Subscriber A blocks for longer then 1 second then the next subscriber will be called on a new thread regardless of the MaxThreadsPerEvent or SyncType
     public TimeSpan StartNextEventHandlerAfter { get; set; } = TimeSpan.FromMilliseconds(1000);
-
+    
     
     
     public EventingOptions()
@@ -26,12 +26,10 @@ public class EventingOptions
         }
     }
     
-    
     internal static int SetThreadCount(EventingOptions options)
     {
         return options.SyncType == EventingSyncType.Async ? 10 : 1;
     }
-    
     
 }
 

@@ -73,8 +73,8 @@ public static class CounterEventHandlers
     
     public static async ValueTask HandleCounterThresholdReached(CounterThresholdEvent @event)
     {
-        Console.WriteLine($"\t Event metadata: {@event.EventMetaData}");
-        Console.WriteLine($"\t Event Caller: {@event.EventMetaData.EventCaller}");
+        Console.WriteLine($"\t Event metadata: {@event.Metadata}");
+        Console.WriteLine($"\t Event Caller: {@event.Metadata.EventCaller}");
         Console.WriteLine();
         await Task.Delay(1000);
     }

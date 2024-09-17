@@ -4,13 +4,23 @@ using System.Xml.Schema;
 
 namespace HelpfulTypesAndExtensions.Interfaces;
 
-public record EventMetaData
+public record EventMetadata
 {
+    public TGuid Id { get; init; } = TGuid.Create();
     public DateTime LastEventTime { get; set; } = DateTime.UtcNow;
     public DateTime CreationTime { get; init; } = DateTime.UtcNow;
-    
     //If the type of the event provider is known at compile time because we are subscribing to an event that class exposes should this be a generic type?
     public object? EventCaller { get; set; } = null;
+    public EventPriority Priority { get; init; } = EventPriority.Medium;
+}
+
+public enum EventPriority
+{
+    None = -2,
+    Low = -1,
+    Medium = 0,
+    High = 1,
+    Critical =2
 }
 
 public interface IEventArgs;
@@ -23,13 +33,13 @@ public interface IEvent;
 public interface IEvent<TEvent> : IEvent
 where TEvent : IEvent
 {
-    public EventMetaData EventMetaData { get; init; }
+    public EventMetadata Metadata { get; init; }
     public List<Subscription<TEvent>> Subscribers { get; init; }
     
     public async Task RaiseEvent<TCaller>(TCaller? eventCaller = null) where TCaller : class?
     {
-        EventMetaData.LastEventTime = DateTime.Now;
-        EventMetaData.EventCaller = eventCaller;
+        Metadata.LastEventTime = DateTime.Now;
+        Metadata.EventCaller = eventCaller;
         try
         {
             await NotifySubscribers();
@@ -120,8 +130,8 @@ where TEventArgs : IEventArgs<TEvent>
     
     public async Task RaiseEvent(TEventArgs args, object? eventCaller = null)
     {
-        EventMetaData.LastEventTime = DateTime.Now;
-        EventMetaData.EventCaller = eventCaller;
+        Metadata.LastEventTime = DateTime.Now;
+        Metadata.EventCaller = eventCaller;
         EventArgs = args;
         try
         {
