@@ -26,4 +26,9 @@ public static class StringExtensions
     /// <returns></returns>
     public static bool EqualsCaseInsensitive(this string? source, string target) => source.IsNotNull() && source!.Equals(target, StringComparison.OrdinalIgnoreCase);
     
+
+    ///<summary>
+    /// Takes an object and prints its properties and their current value in a format of {Name}: {Value}, {Name2}: {Value2}, etc.
+    /// </summary>
+    public static string ToRecordLikeString(this object source) => source.GetType().GetProperties().Select(x => $"{x.Name}: {x.GetValue(source)}").ToCommaSeparatedString();
 }
