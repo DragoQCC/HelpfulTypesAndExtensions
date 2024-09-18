@@ -5,6 +5,15 @@
         <LangVersion>12</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageId>HelpfulTypesAndExtensions</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Jon Owens</Authors>
+        <Company>CrucibleSoftware</Company>
+        <Description>A helpful library of types and extensions.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/DragoQCC/HelpfulTypesAndExtensions</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/DragoQCC/HelpfulTypesAndExtensions</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <ItemGroup>
