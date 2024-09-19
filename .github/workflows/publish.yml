@@ -3,7 +3,7 @@ name: Publish Package
 on:
   push:
     branches:
-      - main  # Adjust if your default branch is different
+      - main
 
 jobs:
   build-and-publish:
@@ -32,13 +32,8 @@ jobs:
       - name: Pack the project
         run: dotnet pack --configuration Release --no-build -o ./packages
 
-      - name: Configure NuGet to use GitHub Packages
-        run: |
-          dotnet nuget add source --username DragoQCC --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/DragoQCC/index.json"
-        shell: bash
-
       - name: Publish to GitHub Packages
-        run: dotnet nuget push ./packages/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push ./packages/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}
         shell: bash
 
       

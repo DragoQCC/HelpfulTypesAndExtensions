@@ -7,7 +7,7 @@ namespace HelpfulTypesAndExtensions;
 public class ObservableHashSet<T> : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
 {
     private HashSet<T> _set;
-    
+
     public ObservableHashSet() : this(EqualityComparer<T>.Default)
     {}
 

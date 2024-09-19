@@ -15,6 +15,10 @@
         <RepositoryUrl>https://github.com/DragoQCC/HelpfulTypesAndExtensions</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+    
+    <PropertyGroup>
+        <WarningsAsErrors>CS8714</WarningsAsErrors>
+    </PropertyGroup>
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

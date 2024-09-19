@@ -92,7 +92,7 @@ public static class TryCatch
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
     /// <returns></returns>
-    public static TResult Try<T,TResult>(Func<T?,TResult> action, T? arg1, Action<Exception>? onError = null)
+    public static TResult Try<T,TResult>(Func<T?,TResult> action, T? arg1, Action<Exception>? onError = null) where TResult : notnull
     {
         try
         {

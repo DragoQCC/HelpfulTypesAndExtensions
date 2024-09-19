@@ -4,8 +4,13 @@ namespace HelpfulTypesAndExtensions;
 
 public static class GenericExtensions
 {
-    public static bool IsNull<T>(this T? item) => item is null;
-    public static bool IsNotNull<T>(this T? item) => item is not null;
+    public static bool IsNull<T>(this T? item) where T : class? => item is null;
+    
+    public static bool IsNull<T>(this T? item) where T : struct => item is null;
+    
+    public static bool IsNotNull<T>(this T? item) where T : class? => item is not null;
+
+    public static bool IsNotNull<T>(this T? item) where T : struct => item is not null;
     
     /// <summary>
     /// Returns true if the item is the default value for the type
@@ -16,23 +21,19 @@ public static class GenericExtensions
     public static bool IsDefault<T>(this T? item) => EqualityComparer<T>.Default.Equals(item, default);
     
     public static bool IsNotDefault<T>(this T? item) => !EqualityComparer<T>.Default.Equals(item, default);
-    
-    /// <summary>
-    /// Returns true if the item is null or the default value for the type
-    /// </summary>
-    /// <param name="item"></param>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
-    public static bool IsNullOrDefault<T>(this T? item) => item.IsNull() || item.IsDefault();
-    
+
+
     /// <summary>
     /// Executes an function on an item if it is not null, otherwise does nothing, returns the result
     /// </summary>
     /// <param name="item"></param>
     /// <param name="action"></param>
+    /// <param name="fallback"></param>
     /// <typeparam name="T"></typeparam>
-    public static TResult? IfNotNullDo<T,TResult>(this T? item, Func<T?,TResult> action, TResult fallback = default)
+    /// <typeparam name="TResult"></typeparam>
+    public static TResult IfNotNullDo<T,TResult>(this T? item, Func<T?,TResult> action, TResult fallback = default) where TResult : notnull
         => item is not null ? TryCatch.Try(action,item) : fallback;
+    
 
     /// <summary>
     /// Executes an function on an item if it is not null, otherwise does nothing, returns the original item
@@ -93,7 +94,7 @@ public static class GenericExtensions
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
     /// <returns></returns>
-    public static TResult? DoIf<T,TResult>(this T? item, Predicate<T> condition, Func<T, TResult> action) where T : class where TResult : class
+    public static TResult? DoIf<T,TResult>(this T? item, Predicate<T?> condition, Func<T?, TResult> action) where T : class? where TResult : notnull
         => condition(item) ? TryCatch.Try(action,item) : default;
     
     
@@ -104,7 +105,7 @@ public static class GenericExtensions
     /// <param name="condition"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static bool CheckIf<T>(this T? item, Predicate<T> condition) => condition(item);
+    public static bool CheckIf<T>(this T? item, Predicate<T?> condition) => condition(item);
 
 
     /// <summary>
@@ -125,7 +126,7 @@ public static class GenericExtensions
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
     /// <returns></returns>
-    public static TResult? ThenDo<T,TResult>(this bool checkResult, T item, Func<T, TResult> action) where T : class where TResult : class
+    public static TResult? ThenDo<T,TResult>(this bool checkResult, T? item, Func<T?, TResult> action) where T : class? where TResult : notnull
         => checkResult ? TryCatch.Try(action,item) : default;
     
     /// <summary>
@@ -144,7 +145,7 @@ public static class GenericExtensions
         => checkResult ? item : default;
     
     
-    public static T? ReturnIf<T>(this T? item, Predicate<T> condition)
+    public static T? ReturnIf<T>(this T? item, Predicate<T?> condition) where T : class?
         => condition(item) ? item : default;
    
     /// <summary>

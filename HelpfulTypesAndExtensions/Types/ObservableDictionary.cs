@@ -3,7 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace HelpfulTypesAndExtensions;
 
-public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INotifyPropertyChanged
+public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INotifyPropertyChanged 
+    where TKey : notnull
 {
     public event PropertyChangedEventHandler? PropertyChanged;
     public event EventHandler<KeyValuePair<TKey, TValue>>? ItemAdded;

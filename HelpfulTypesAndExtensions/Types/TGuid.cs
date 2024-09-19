@@ -7,7 +7,7 @@
 public readonly record struct TGuid
 {
     private readonly string? _value = null;
-    
+
     internal TGuid(Guid value)
     {
         //get the current UTC datetime to the nanosecond and append it to the guid
@@ -29,7 +29,6 @@ public readonly record struct TGuid
         }
         throw new ArgumentException("The value provided is not a valid guid");
     }
-
 
     public override string ToString() => _value ?? Create()._value!;
     
