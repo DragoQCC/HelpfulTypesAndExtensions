@@ -8,13 +8,17 @@ public interface IEnumeration<T> where T : IEnumeration<T>
     string DisplayName { get; }
 }
 
+/// <summary>
+/// A class that represents an enumeration, allowing for more flexibility and functionality than a standard enum
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public record Enumeration<T>() : IComparable<T> where T : IEnumeration<T>
 {
     private static readonly Lazy<Dictionary<int, T>> AllItems;
     private static readonly Lazy<Dictionary<string, T>> AllItemsByName;
     
     public int Value { get; }
-    public string DisplayName { get; }
+    public string DisplayName { get; } = typeof(T).Name;
 
     static Enumeration()
     {
@@ -34,8 +38,7 @@ public record Enumeration<T>() : IComparable<T> where T : IEnumeration<T>
             {
                 if (!items.TryAdd(item.Value.DisplayName, item.Value))
                 {
-                    throw new Exception(
-                        $"DisplayName needs to be unique. '{item.Value.DisplayName}' already exists");
+                    throw new Exception($"DisplayName needs to be unique. '{item.Value.DisplayName}' already exists");
                 }
             }
             return items;

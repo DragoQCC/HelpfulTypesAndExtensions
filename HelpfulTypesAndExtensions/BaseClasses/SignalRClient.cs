@@ -6,8 +6,8 @@ namespace HelpfulTypesAndExtensions.BaseClasses;
 public abstract class SignalRClient : ISignalRClient
 {
     public HubConnection? HubConnection { get; set; }
-    public ISignalRClientModel ClientModel { get; set; }
-    public ISignalRHubModel HubModel { get; set; }
+    public ISignalRClientModel? ClientModel { get; set; }
+    public ISignalRHubModel? HubModel { get; set; }
 
     public abstract Task CreateHubClient();
 
@@ -30,7 +30,7 @@ public abstract class SignalRClient : ISignalRClient
     /// </summary>
     /// <param name="onFailure"></param>
     /// <returns></returns>
-    protected internal virtual async Task<bool> TryReconnect(Action<Exception>? onFailure = null)
+    virtual protected internal async Task<bool> TryReconnect(Action<Exception>? onFailure = null)
     {
         return await TryCatch.Try(Reconnect, onFailure);
     }

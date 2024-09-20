@@ -104,10 +104,7 @@ public static class ConfigurationExtensions
             }
             else
             {
-                return uris
-                    .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(url => new Uri(url, UriKind.Absolute))
-                    .ToArray();
+                return uris?.Split([';'], StringSplitOptions.RemoveEmptyEntries).Select(url => new Uri(url, UriKind.Absolute)).ToArray();
             }
         }
         catch (Exception ex)
@@ -116,6 +113,7 @@ public static class ConfigurationExtensions
         }
     }
 
+    
     /// <summary>
     /// Gets the named configuration value as a member of an enum, or <paramref name="defaultValue"/> if the value was null or empty.
     /// </summary>
@@ -128,8 +126,7 @@ public static class ConfigurationExtensions
     /// <exception cref="InvalidOperationException">The configuration value is not a valid member of the enum.</exception>
     /// <returns>The parsed enum member, or <paramref name="defaultValue"/> the configuration value was null or empty.</returns>
     [return: NotNullIfNotNull(nameof(defaultValue))]
-    public static T? GetEnum<T>(this IConfiguration configuration, string key, T? defaultValue = default)
-        where T : struct
+    public static T? GetEnum<T>(this IConfiguration configuration, string key, T? defaultValue) where T : struct
     {
         var value = configuration[key];
 
@@ -157,7 +154,7 @@ public static class ConfigurationExtensions
     /// <returns>The parsed enum member.</returns>
     public static T GetEnum<T>(this IConfiguration configuration, string key) where T : struct
     {
-        var value = configuration.GetEnum<T>(key, defaultValue: null);
+        var value = configuration.GetEnum<T>(key, null);
 
         if (value is null)
         {

@@ -8,6 +8,7 @@ public static class TypeExtensions
     internal static readonly ConcurrentDictionary<MethodBase, IReadOnlyList<Type>> ParameterMap = new ConcurrentDictionary<MethodBase, IReadOnlyList<Type>>();
     
     
+    #if NETCORE
     /// <summary>
     /// Returns the first interface that the type implements from the list of interfaces
     /// </summary>
@@ -30,7 +31,32 @@ public static class TypeExtensions
         }
         return null;
     }
+    #endif
     
+    #if NETSTANDARD
+    /// <summary>
+    /// Returns the first interface that the type implements from the list of interfaces
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="interfaces"></param>
+    /// <returns></returns>
+    public static Type? ImplementsInterfaceFrom(this Type type, List<Type> interfaces)
+    {
+        foreach (var interfaceType in interfaces)
+        {
+            if(interfaceType.Name == type.Name)
+            {
+                //skip this so we don't try to assign the type we are looking for to itself
+                continue;
+            }
+            if (interfaceType.IsAssignableFrom(type))
+            {
+                return interfaceType;
+            }
+        }
+        return null;
+    }
+    #endif
     
 }
 

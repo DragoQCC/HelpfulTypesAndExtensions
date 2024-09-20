@@ -35,7 +35,7 @@ public static class JsonSerialization
     /// <param name="data"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static string SerializeToString<T>(this T data)
+    public static string? SerializeToString<T>(this T data)
     {
         try
         {
@@ -59,7 +59,7 @@ public static class JsonSerialization
     /// <param name="data"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T Deserialize<T>(this byte[] data)
+    public static T? Deserialize<T>(this byte[] data)
     {
         var jsonSerializerOptions = new JsonSerializerOptions();
         jsonSerializerOptions.AllowTrailingCommas = true;
@@ -73,7 +73,7 @@ public static class JsonSerialization
                     return default;
                 //if the last byte is a 0 then remove it
                 case >= 1 when data[^1] == 0:
-                    data = data[..^1];
+                    data = data.Take(data.Length - 1).ToArray();
                     break;
             }
             if (IsValidJson(data))
@@ -104,7 +104,7 @@ public static class JsonSerialization
     /// <param name="data"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T Deserialize<T>(this string data)
+    public static T? Deserialize<T>(this string data)
     {
         try
         {
@@ -117,6 +117,7 @@ public static class JsonSerialization
             return default;
         }
     }
+    
     
     /// <summary>
     /// Given a byte array, determines if it is valid JSON

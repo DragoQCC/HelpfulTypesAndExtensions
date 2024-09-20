@@ -4,12 +4,38 @@ namespace HelpfulTypesAndExtensions;
 
 public static class GenericExtensions
 {
+    /// <summary>
+    /// Returns true if the reference type is null <br/>
+    /// Includes Classes, Records, Interfaces, and Delegates
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static bool IsNull<T>(this T? item) where T : class? => item is null;
     
+    /// <summary>
+    /// Returns true if the value type is null
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static bool IsNull<T>(this T? item) where T : struct => item is null;
     
+    /// <summary>
+    /// Returns true if the reference type is not null <br/>
+    /// Includes Classes, Records, Interfaces, and Delegates
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static bool IsNotNull<T>(this T? item) where T : class? => item is not null;
 
+    /// <summary>
+    /// Returns true if the value type is not null
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static bool IsNotNull<T>(this T? item) where T : struct => item is not null;
     
     /// <summary>
@@ -18,9 +44,15 @@ public static class GenericExtensions
     /// <param name="item"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static bool IsDefault<T>(this T? item) => EqualityComparer<T>.Default.Equals(item, default);
+    public static bool IsDefault<T>(this T? item) => EqualityComparer<T>.Default.Equals(item!, default!);
     
-    public static bool IsNotDefault<T>(this T? item) => !EqualityComparer<T>.Default.Equals(item, default);
+    /// <summary>
+    /// Returns true if the item is not the default value for the type
+    /// </summary>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static bool IsNotDefault<T>(this T? item) => !EqualityComparer<T>.Default.Equals(item!, default!);
 
 
     /// <summary>
@@ -31,7 +63,7 @@ public static class GenericExtensions
     /// <param name="fallback"></param>
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
-    public static TResult IfNotNullDo<T,TResult>(this T? item, Func<T?,TResult> action, TResult fallback = default) where TResult : notnull
+    public static TResult IfNotNullDo<T,TResult>(this T? item, Func<T?,TResult> action, TResult fallback = default!) where TResult : notnull
         => item is not null ? TryCatch.Try(action,item) : fallback;
     
 
@@ -141,10 +173,24 @@ public static class GenericExtensions
         => checkResult ? TryCatch.Try(action,item).ContinueWith(Empty.Default) : Empty.Default;
     
     
+    /// <summary>
+    /// Returns either the item or null depending on the checkResult, if the checkResult is true, the item is returned otherwise null
+    /// </summary>
+    /// <param name="checkResult"></param>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static T? ReturnOrNull<T>(this bool checkResult, T item)
         => checkResult ? item : default;
     
     
+    /// <summary>
+    /// Returns the item if it clears the condition, otherwise returns null
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="condition"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static T? ReturnIf<T>(this T? item, Predicate<T?> condition) where T : class?
         => condition(item) ? item : default;
    
@@ -167,6 +213,13 @@ public static class GenericExtensions
     public static Empty ThenDo(this bool checkResult, Action doAction, Action elseAction)
         => checkResult ? TryCatch.Try(doAction).ContinueWith(Empty.Default) : TryCatch.Try(elseAction).ContinueWith(Empty.Default);
     
+    /// <summary>
+    /// Can be used to chain together with ThenDo to create an if else statement <br/>
+    /// will execute the passed in action if the checkResult is false
+    /// </summary>
+    /// <param name="checkResult"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
     public static bool ElseDo(this bool checkResult, Action action)
         => checkResult ? checkResult : TryCatch.Try(action).ContinueWith(checkResult);
     
@@ -182,9 +235,17 @@ public static class GenericExtensions
     /// <returns></returns>
     public static TReturn ContinueWith<T,TReturn> (this T? appliedItem, TReturn itemToReturn) => itemToReturn;
     
+    /// <summary>
+    /// Used to allow chaining of functions and still return whatever item is relevant in the call chain
+    /// </summary>
+    /// <param name="appliedItem"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TReturn"></typeparam>
+    /// <returns></returns>
     public static TReturn? ContinueWith<T,TReturn> (this T? appliedItem) => default;
     
     
+    #if NETCORE 
     /// <summary>
     /// Throws an exception if the supplied item is null
     /// Will include the method name, file path, line number, and a custom message
@@ -203,5 +264,25 @@ public static class GenericExtensions
         [CallerLineNumber] int sourceLineNumber = 0, 
         [CallerArgumentExpression(nameof(value))] string? message = "") 
         => value ?? throw new NullReferenceException($"Object {message} is null, \n\t type is: {typeof(T)}, \n\t method: {memberName}, \n\t file: {sourceFilePath}, \n\t line: {sourceLineNumber}");
-    
+    #endif
+    #if NETSTANDARD
+    /// <summary>
+    /// Throws an exception if the supplied item is null
+    /// Will include the method name, file path, line number, and a custom message
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="memberName"></param>
+    /// <param name="sourceFilePath"></param>
+    /// <param name="sourceLineNumber"></param>
+    /// <param name="message"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="NullReferenceException"></exception>
+    public static T ThrowIfNull<T>(this T? value, 
+        [CallerMemberName] string memberName = "", 
+        [CallerFilePath] string sourceFilePath = "", 
+        [CallerLineNumber] int sourceLineNumber = 0, 
+        string? message = "") 
+        => value ?? throw new NullReferenceException($"Object {message} is null, \n\t type is: {typeof(T)}, \n\t method: {memberName}, \n\t file: {sourceFilePath}, \n\t line: {sourceLineNumber}");
+    #endif
 }

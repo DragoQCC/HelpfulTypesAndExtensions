@@ -23,9 +23,9 @@ public static class Pathing
         //if _splitKey contains a . then split on the dots and take the last element
         if (_splitKey.Contains('.'))
         {
-            _splitKey = _splitKey.Split(".")[^1];
+            _splitKey = _splitKey.Split(["."], StringSplitOptions.None)[^1];
         }
-        string baseFolderPath = Path.Combine(folderpath.Split(_splitKey)[0] + _splitKey);
+        string baseFolderPath = Path.Combine(folderpath.Split([_splitKey],StringSplitOptions.None)[0] + _splitKey);
         return baseFolderPath;
     }
     

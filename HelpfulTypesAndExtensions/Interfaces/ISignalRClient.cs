@@ -12,8 +12,8 @@ namespace HelpfulTypesAndExtensions.Interfaces;
 public interface ISignalRClient
 {
     internal HubConnection? HubConnection { get; set; }
-    internal ISignalRClientModel ClientModel { get; set; }
-    internal ISignalRHubModel HubModel { get; set; }
+    internal ISignalRClientModel? ClientModel { get; set; }
+    internal ISignalRHubModel? HubModel { get; set; }
     
     public Task CreateHubClient();
     public Task<bool> ConnectAsync();

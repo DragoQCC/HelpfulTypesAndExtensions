@@ -195,10 +195,10 @@ public class ObservableHashSet<T> : ISet<T>, IReadOnlyCollection<T>, INotifyColl
     public virtual void TrimExcess() => _set.TrimExcess();
 
    
-    protected virtual void OnPropertyChanged(PropertyChangedEventArgs e) => PropertyChanged?.Invoke(this, e);
+    virtual protected void OnPropertyChanged(PropertyChangedEventArgs e) => PropertyChanged?.Invoke(this, e);
 
    
-    protected virtual void OnPropertyChanging(PropertyChangingEventArgs e) => PropertyChanging?.Invoke(this, e);
+    virtual protected void OnPropertyChanging(PropertyChangingEventArgs e) => PropertyChanging?.Invoke(this, e);
 
     private void OnCountPropertyChanged() => OnPropertyChanged(ObservableHashSetSingletons.CountPropertyChanged);
 
@@ -208,7 +208,7 @@ public class ObservableHashSet<T> : ISet<T>, IReadOnlyCollection<T>, INotifyColl
 
     private void OnCollectionChanged(IList newItems, IList oldItems) => OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems, oldItems));
     
-    protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e) => CollectionChanged?.Invoke(this, e);
+    virtual protected void OnCollectionChanged(NotifyCollectionChangedEventArgs e) => CollectionChanged?.Invoke(this, e);
 }
 
 internal static class ObservableHashSetSingletons

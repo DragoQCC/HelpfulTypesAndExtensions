@@ -11,20 +11,20 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
     public event EventHandler<KeyValuePair<TKey, TValue>>? ItemUpdated;
     public event EventHandler<TKey>? ItemRemoved;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    virtual protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected virtual void OnItemAdded(KeyValuePair<TKey, TValue> e)
+    virtual protected void OnItemAdded(KeyValuePair<TKey, TValue> e)
     {
         ItemAdded?.Invoke(this, e);
     }
-    protected virtual void OnItemUpdated(KeyValuePair<TKey, TValue> e)
+    virtual protected void OnItemUpdated(KeyValuePair<TKey, TValue> e)
     {
         ItemUpdated?.Invoke(this, e);
     }
-    protected virtual void OnItemRemoved(TKey e)
+    virtual protected void OnItemRemoved(TKey e)
     {
         ItemRemoved?.Invoke(this, e);
     }
@@ -45,6 +45,7 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         OnItemAdded(new KeyValuePair<TKey, TValue>(key,value));
     }
 
+    #if DOTNET5_0_OR_GREATER
     public new bool TryAdd(TKey key, TValue value)
     {
         var result = base.TryAdd(key, value);
@@ -54,6 +55,23 @@ public class ObservableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, INot
         }
         return result;
     }
+    #endif
+    #if NETSTANDARD
+    public bool TryAdd(TKey key, TValue value)
+    {
+        var result = false;
+        if (!ContainsKey(key))
+        {
+            Add(key, value);
+            result = true;
+        }
+        if (result)
+        {
+            OnItemAdded(new KeyValuePair<TKey, TValue>(key, value));
+        }
+        return result;
+    }
+    #endif
 
     public new bool Remove(TKey key)
     {
