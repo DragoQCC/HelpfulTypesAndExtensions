@@ -32,7 +32,7 @@ jobs:
       - name: Pack the project
         run: dotnet pack --configuration Release --no-build -o ./packages
 
-      - name: Publish to GitHub Packages
+      - name: Publish to Nuget
         run: dotnet nuget push ./packages/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }}
         shell: bash
 
