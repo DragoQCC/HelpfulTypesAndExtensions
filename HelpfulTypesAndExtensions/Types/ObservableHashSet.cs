@@ -4,6 +4,10 @@ using System.ComponentModel;
 
 namespace HelpfulTypesAndExtensions;
 
+/// <summary>
+/// An observable hash set that implements INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class ObservableHashSet<T> : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
 {
     private HashSet<T> _set;

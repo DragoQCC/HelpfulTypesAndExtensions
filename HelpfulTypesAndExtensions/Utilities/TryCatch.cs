@@ -63,7 +63,7 @@ public static class TryCatch
     /// <param name="onError"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static T Try<T>(Func<T> action, Action<Exception>? onError = null)
+    public static T Try<T>(Func<T> action, Func<Exception,T>? onError = null)
     {
         try
         {
@@ -75,8 +75,36 @@ public static class TryCatch
             {
                 throw;
             }
-            onError(e);
-            return default!;
+            return onError(e);
+            //return default!;
+        }
+    }
+    
+    /// <summary>
+    /// Tries to execute the provided method and catches any exceptions that occur <br/>
+    /// If a onError method is provided, it will be called with the exception as a parameter <br/>
+    /// Otherwise, this method throws when it fails <br/>
+    /// Returns the result of the method if it succeeds, or the return value of onError if a method is provided <br/>
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="arg1"></param>
+    /// <param name="onError"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TResult"></typeparam>
+    /// <returns></returns>
+    public static TResult Try<T,TResult>(Func<T?,TResult> action, T? arg1, Func<Exception,TResult>? onError = null) where TResult : notnull
+    {
+        try
+        {
+            return action(arg1);
+        }
+        catch (Exception e)
+        {
+            if (onError is null)
+            {
+                throw;
+            }
+            return onError(e);
         }
     }
     
@@ -161,7 +189,6 @@ public static class TryCatch
         }
     }
     
-
     /// <summary>
     /// Executes the provided method to handle the exception <br/>
     /// </summary>

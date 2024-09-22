@@ -5,7 +5,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{1E4F5881-E17F-427C-88C1-D4F2B822B643}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\publish.yml = .github\workflows\publish.yml
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelpFulTypesAndExtensions.Tests.Unit", "HelpFulTypesAndExtensions.Tests.Unit\HelpFulTypesAndExtensions.Tests.Unit.csproj", "{8F653599-B1AE-41C3-86C2-E7788D05F469}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,5 +20,11 @@ Global
 		{6F0B462F-3380-421D-829D-16579DDC2D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F0B462F-3380-421D-829D-16579DDC2D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F0B462F-3380-421D-829D-16579DDC2D90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F653599-B1AE-41C3-86C2-E7788D05F469}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F653599-B1AE-41C3-86C2-E7788D05F469}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F653599-B1AE-41C3-86C2-E7788D05F469}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F653599-B1AE-41C3-86C2-E7788D05F469}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

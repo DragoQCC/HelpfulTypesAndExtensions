@@ -64,7 +64,7 @@ public static class GenericExtensions
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TResult"></typeparam>
     public static TResult IfNotNullDo<T,TResult>(this T? item, Func<T?,TResult> action, TResult fallback = default!) where TResult : notnull
-        => item is not null ? TryCatch.Try(action,item) : fallback;
+        => item is not null ? TryCatch.Try(action,item,onError: null) : fallback;
     
 
     /// <summary>
@@ -127,7 +127,7 @@ public static class GenericExtensions
     /// <typeparam name="TResult"></typeparam>
     /// <returns></returns>
     public static TResult? DoIf<T,TResult>(this T? item, Predicate<T?> condition, Func<T?, TResult> action) where T : class? where TResult : notnull
-        => condition(item) ? TryCatch.Try(action,item) : default;
+        => condition(item) ? TryCatch.Try(action,item, onError: null) : default;
     
     
     /// <summary>
@@ -159,7 +159,7 @@ public static class GenericExtensions
     /// <typeparam name="TResult"></typeparam>
     /// <returns></returns>
     public static TResult? ThenDo<T,TResult>(this bool checkResult, T? item, Func<T?, TResult> action) where T : class? where TResult : notnull
-        => checkResult ? TryCatch.Try(action,item) : default;
+        => checkResult ? TryCatch.Try(action,item,onError: null) : default;
     
     /// <summary>
     /// Executes the action if the checkResult is true, otherwise returns Empty.Default and does nothing

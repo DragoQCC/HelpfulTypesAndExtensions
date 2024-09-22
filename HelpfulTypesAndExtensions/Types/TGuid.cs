@@ -7,6 +7,8 @@
 public readonly record struct TGuid
 {
     private readonly string? _value = null;
+    public Guid OriginalGuid => Guid.Parse(_value!.Substring(0, 32));
+    public DateTime CreationTime => DateTime.Parse(_value!.Substring(32));
 
     internal TGuid(Guid value)
     {
@@ -17,11 +19,11 @@ public readonly record struct TGuid
         _value = value.ToString("N") + "-" +  tickCount;
     }
 
-    public static TGuid Create() => new(Guid.NewGuid());
+    public static TGuid NewTGuid() => new(Guid.NewGuid());
     
-    public static TGuid Create(Guid value) => new(value);
+    public static TGuid NewTGuid(Guid value) => new(value);
     
-    public static TGuid Create(string value)
+    public static TGuid NewTGuid(string value)
     {
         if (Guid.TryParse(value, out var guid))
         {
@@ -30,7 +32,7 @@ public readonly record struct TGuid
         throw new ArgumentException("The value provided is not a valid guid");
     }
 
-    public override string ToString() => _value ?? Create()._value!;
+    public override string ToString() => _value ?? NewTGuid()._value!;
     
     public static implicit operator string(TGuid guid) => guid._value!;
     public static implicit operator TGuid(Guid guid) => new(guid);

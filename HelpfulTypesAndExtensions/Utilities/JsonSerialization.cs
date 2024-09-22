@@ -5,7 +5,6 @@ namespace HelpfulTypesAndExtensions;
 
 public static class JsonSerialization
 {
-
     /// <summary>
     /// Serializes an object to a JSON byte array
     /// </summary>
@@ -27,8 +26,7 @@ public static class JsonSerialization
             return [];
         }
     }
-
-   
+    
     /// <summary>
     /// Serializes an object to a JSON string
     /// </summary>
@@ -51,8 +49,7 @@ public static class JsonSerialization
             return null;
         }
     }
-
-
+    
     /// <summary>
     /// Attempts to deserialize a JSON byte array to an object
     /// </summary>
@@ -118,7 +115,6 @@ public static class JsonSerialization
         }
     }
     
-    
     /// <summary>
     /// Given a byte array, determines if it is valid JSON
     /// </summary>
@@ -160,7 +156,6 @@ public static class JsonSerialization
             return false;
         }
     }
-    
     
     /// <summary>
     /// this assumes the json data is a list of objects that is currently structured like {"type":"data"}{"type":"data"} instead of [{"type":"data"},{"type":"data"}]

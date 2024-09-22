@@ -57,6 +57,10 @@ public static class CollectionExtensions
     /// <returns></returns>
     public static string ToCommaSeparatedString<T>(this IEnumerable<T> source, Func<T, string> selector) => string.Join(", ", source.Select(selector));
     
+    /// <summary>
+    /// Executes the Dispose method on each item in the collection
+    /// </summary>
+    /// <param name="collection"></param>
     public static void DisposeItems(this IEnumerable<IDisposable?> collection)
     {
         foreach (IDisposable? item in collection)
@@ -71,11 +75,14 @@ public static class CollectionExtensions
             }
             catch (Exception)
             {
-                // log exception and continue
             }
         }
     }
     
+    /// <summary>
+    /// Executes the DisposeAsync method on each item in the collection
+    /// </summary>
+    /// <param name="collection"></param>
     public static async Task DisposeItemsAsync(this IEnumerable<IAsyncDisposable?> collection)
     {
         foreach (IAsyncDisposable? item in collection)
@@ -90,11 +97,22 @@ public static class CollectionExtensions
             }
             catch (Exception)
             {
-                // log exception and continue
             }
         }
     }
     
+    
+    /// <summary>
+    /// Implements a TryAdd method for dictionaries that will only add the item if the key does not already exist <br/>
+    /// Only needed for .NET Standard 2.0, since .NET Core and later have this method built in
+    /// </summary>
+    /// <param name="dictionary"></param>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <returns></returns>
+    #if NETSTANDARD
     public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
     {
         if (dictionary.ContainsKey(key))
@@ -104,4 +122,5 @@ public static class CollectionExtensions
         dictionary.Add(key, value);
         return true;
     }
+    #endif
 }
