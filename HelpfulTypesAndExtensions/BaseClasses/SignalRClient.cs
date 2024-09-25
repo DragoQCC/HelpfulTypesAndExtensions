@@ -1,7 +1,6 @@
-﻿using HelpfulTypesAndExtensions.Interfaces;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 
-namespace HelpfulTypesAndExtensions.BaseClasses;
+namespace HelpfulTypesAndExtensions;
 
 public abstract class SignalRClient : ISignalRClient
 {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.SignalR;
 
-namespace HelpfulTypesAndExtensions.Interfaces;
+namespace HelpfulTypesAndExtensions;
 
 
 /// <summary>

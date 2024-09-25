@@ -1,7 +1,4 @@
-﻿using HelpfulTypesAndExtensions.Interfaces;
-using Microsoft.AspNetCore.SignalR;
-
-namespace HelpfulTypesAndExtensions.BaseClasses;
+﻿namespace HelpfulTypesAndExtensions;
 
 #if NETCORE
 /// <summary>

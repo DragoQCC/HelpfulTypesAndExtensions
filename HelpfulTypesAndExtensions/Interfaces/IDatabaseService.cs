@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace HelpfulTypesAndExtensions.Interfaces;
+namespace HelpfulTypesAndExtensions;
 
 /// <summary>
 /// Interface for abstracting database operations <br/>

@@ -54,11 +54,61 @@ private Func<string, Empty> GetConsoleWrite()
 - A wrapper type for expressions that return a boolean
 - Allows for chaining expressions together and for creating complex boolean expressions
 
+### `Errors` - A collection of classes that represent common error types
+- Includes types for 
+  - Client Errors
+  - Server Errors
+  - Validation Errors
+  - Security Errors
+  - Resource Errors
+  - Network Errors
+  - Custom Errors
+
+```csharp
+
+public class ResultORError<T>
+{
+    public T? Result { get; set; }
+    public List<IError> Errors { get; set; } = new List<IError>();
+}
+
+void Method1()
+{
+    var resultOrError = Method2();
+    if(resultOrError.Errors.Count > 0)
+    {
+        foreach(var error in resultOrError.Errors)
+        {
+            Console.WriteLine(error.Message);
+        }
+    }
+    else
+    {
+        Console.WriteLine(resultOrError.Result);
+    }
+}
+
+ResultORError<HttpMessage> Method2()
+{
+    HttpClient client = new HttpClient();
+    var response = client.GetAsync("https://www.google.com").Result;
+    if(response.IsSuccessStatusCode)
+    {
+        return new ResultORError<HttpMessage> { Result = response.Content };
+    }
+    else
+    {
+        return new ResultORError<HttpMessage> { Errors = [NetworkErrors.ConnectionFailure("Failed to connect to host")] };
+    }
+}
+```
+
 ## Interfaces 
 - IDatabaseService
 - ISignalRClient
 - ISignalRClientModel
 - ISignalRHubModel
+- IError
 
 
 ## Base Classes

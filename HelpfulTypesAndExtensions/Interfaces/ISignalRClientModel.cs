@@ -1,4 +1,4 @@
-﻿namespace HelpfulTypesAndExtensions.Interfaces;
+﻿namespace HelpfulTypesAndExtensions;
 
 
 /// <summary>
