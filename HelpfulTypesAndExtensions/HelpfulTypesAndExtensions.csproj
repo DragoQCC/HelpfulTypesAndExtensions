@@ -5,13 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>HelpfulTypesAndExtensions</PackageId>
-        <Version>1.3.1</Version>
+        <Version>1.3.2</Version>
         <Authors>Jon Owens</Authors>
         <Company>CrucibleSoftware</Company>
         <Description>A helpful library of types and extensions.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/DragoQCC/HelpfulTypesAndExtensions</PackageProjectUrl>
         <RepositoryUrl>https://github.com/DragoQCC/HelpfulTypesAndExtensions</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
         <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     </PropertyGroup>
@@ -19,6 +20,10 @@
     <PropertyGroup>
         <WarningsAsErrors>CS8714</WarningsAsErrors>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
     
 
     <ItemGroup>
