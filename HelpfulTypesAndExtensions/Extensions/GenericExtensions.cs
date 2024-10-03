@@ -245,6 +245,16 @@ public static class GenericExtensions
     public static TReturn? ContinueWith<T,TReturn> (this T? appliedItem) => default;
     
     
+    /// <summary>
+    /// Can be used to help chain together logical operations such as item.IsNotNull().And(item).IsNotNull()
+    /// </summary>
+    /// <param name="checkResult"></param>
+    /// <param name="item"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static T? And<T>(this bool checkResult, T item) => checkResult ? item : default;
+    
+    
     #if NETCORE 
     /// <summary>
     /// Throws an exception if the supplied item is null

@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>HelpfulTypesAndExtensions</PackageId>
-        <Version>1.3.2</Version>
+        <Version>1.3.3</Version>
         <Authors>Jon Owens</Authors>
         <Company>CrucibleSoftware</Company>
         <Description>A helpful library of types and extensions.</Description>
@@ -15,6 +15,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
         <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     
     <PropertyGroup>
