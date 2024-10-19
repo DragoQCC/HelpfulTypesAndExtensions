@@ -1,3 +1,6 @@
+using System.Net;
+using System.Net.Http.Headers;
+
 namespace HelpfulTypesAndExtensions;
 
 /// <summary>
@@ -10,31 +13,40 @@ namespace HelpfulTypesAndExtensions;
 /// </summary>
 public static class NetworkErrors
 {
-    public static NetworkingError GenericNetworking(string? message = null)
+    public static NetworkingError GenericNetworking(string? message = null, HttpStatusCode? statusCode = null, IEnumerable<HttpHeaders>? headers = null) => new()
     {
-        var networkingError = new NetworkingError();
-        return networkingError.SetMessage(message);
-    }
-    public static RateLimitError RateLimit(string? message = null)
+        Message = message,
+        StatusCode = statusCode,
+        Headers = headers
+    };
+
+    public static RateLimitError RateLimit(string? message = null, HttpStatusCode? statusCode = null, IEnumerable<HttpHeaders>? headers = null) => new()
     {
-        var rateLimitError = new RateLimitError();
-        return rateLimitError.SetMessage(message);
-    }
-    public static TimeoutError Timeout(string? message = null)
+        Message = message,
+        StatusCode = statusCode,
+        Headers = headers
+    };
+    
+    public static TimeoutError Timeout(string? message = null, HttpStatusCode? statusCode = null, IEnumerable<HttpHeaders>? headers = null) => new()
     {
-        var timeoutError = new TimeoutError();
-        return timeoutError.SetMessage(message);
-    }
-    public static ConnectionFailureError ConnectionFailure(string? message = null)
+        Message = message,
+        StatusCode = statusCode,
+        Headers = headers
+    };
+    
+    public static ConnectionFailureError ConnectionFailure(string? message = null, HttpStatusCode? statusCode = null, IEnumerable<HttpHeaders>? headers = null) => new()
     {
-        var connectionFailureError = new ConnectionFailureError();
-        return connectionFailureError.SetMessage(message);
-    }
-    public static AuthenticationFailureError AuthenticationFailure(string? message = null)
+        Message = message,
+        StatusCode = statusCode,
+        Headers = headers
+    };
+    
+    public static AuthenticationFailureError AuthenticationFailure(string? message = null, HttpStatusCode? statusCode = null, IEnumerable<HttpHeaders>? headers = null) => new()
     {
-        var authenticationFailureError = new AuthenticationFailureError();
-        return authenticationFailureError.SetMessage(message);
-    }
+        Message = message,
+        StatusCode = statusCode,
+        Headers = headers
+    };
 
     public record struct NetworkingError() : INetworkError<NetworkingError>
     {
@@ -61,6 +73,12 @@ public static class NetworkErrors
         
         /// <inheritdoc />
         public IDictionary<string, object>? MetaData { get; set; } = null;
+
+        /// <inheritdoc />
+        public HttpStatusCode? StatusCode { get; set; }
+
+        /// <inheritdoc />
+        public IEnumerable<HttpHeaders>? Headers { get; set; }
     }
     
     public record struct RateLimitError() : INetworkError<RateLimitError>
@@ -88,6 +106,12 @@ public static class NetworkErrors
         
         /// <inheritdoc />
         public IDictionary<string, object>? MetaData { get; set; } = null;
+        
+        /// <inheritdoc />
+        public HttpStatusCode? StatusCode { get; set; }
+
+        /// <inheritdoc />
+        public IEnumerable<HttpHeaders>? Headers { get; set; }
     }
 
     public record struct TimeoutError() : INetworkError<TimeoutError>
@@ -108,6 +132,12 @@ public static class NetworkErrors
         public IError? InnerError { get; set; } = null;
         /// <inheritdoc />
         public IDictionary<string, object>? MetaData { get; set; } = null;
+        
+        /// <inheritdoc />
+        public HttpStatusCode? StatusCode { get; set; }
+
+        /// <inheritdoc />
+        public IEnumerable<HttpHeaders>? Headers { get; set; }
     }
     
     public record struct ConnectionFailureError() : INetworkError<ConnectionFailureError>
@@ -128,6 +158,12 @@ public static class NetworkErrors
         public IError? InnerError { get; set; } = null;
         /// <inheritdoc />
         public IDictionary<string, object>? MetaData { get; set; } = null;
+        
+        /// <inheritdoc />
+        public HttpStatusCode? StatusCode { get; set; }
+
+        /// <inheritdoc />
+        public IEnumerable<HttpHeaders>? Headers { get; set; }
     }
     
     public record struct AuthenticationFailureError() : INetworkError<AuthenticationFailureError>
@@ -148,5 +184,11 @@ public static class NetworkErrors
         public IError? InnerError { get; set; } = null;
         /// <inheritdoc />
         public IDictionary<string, object>? MetaData { get; set; } = null;
+        
+        /// <inheritdoc />
+        public HttpStatusCode? StatusCode { get; set; }
+
+        /// <inheritdoc />
+        public IEnumerable<HttpHeaders>? Headers { get; set; }
     }
 }
