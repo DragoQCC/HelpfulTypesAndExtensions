@@ -5,8 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>HelpfulTypesAndExtensions</PackageId>
-        <!--TODO: Check version number is updated prior to commit-->
-        <Version>1.6.1</Version>
+        <Version>1.6.2</Version>
         <Authors>Jon Owens</Authors>
         <Company>CrucibleSoftware</Company>
         <Description>A helpful library of types and extensions.</Description>
