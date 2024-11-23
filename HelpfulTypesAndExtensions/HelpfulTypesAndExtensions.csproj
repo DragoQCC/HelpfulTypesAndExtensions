@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <PackageId>HelpfulTypesAndExtensions</PackageId>
         <!--TODO: Check version number is updated prior to commit-->
-        <Version>1.6.0</Version>
+        <Version>1.6.1</Version>
         <Authors>Jon Owens</Authors>
         <Company>CrucibleSoftware</Company>
         <Description>A helpful library of types and extensions.</Description>
@@ -29,9 +29,9 @@
     
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="8.0.8" PrivateAssets="all" />
-      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" PrivateAssets="all" />
-      <PackageReference Include="PolySharp" Version="1.14.1">
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="9.0.0" PrivateAssets="all" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" PrivateAssets="all" />
+      <PackageReference Include="PolySharp" Version="1.15.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
