@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <LangVersion>12</LangVersion>
+        <LangVersion>latestmajor</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>HelpfulTypesAndExtensions</PackageId>
-        <Version>1.5.0</Version>
+        <!--TODO: Check version number is updated prior to commit-->
+        <Version>1.6.0</Version>
         <Authors>Jon Owens</Authors>
         <Company>CrucibleSoftware</Company>
         <Description>A helpful library of types and extensions.</Description>
@@ -14,7 +15,7 @@
         <RepositoryUrl>https://github.com/DragoQCC/HelpfulTypesAndExtensions</RepositoryUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
-        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;netstandard2.0;net9.0</TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     
