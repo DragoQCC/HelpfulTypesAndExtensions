@@ -1,3 +1,5 @@
+using HelpfulTypesAndExtensions.Errors;
+
 namespace HelpfulTypesAndExtensions;
 
 public static class ErrorExtensions

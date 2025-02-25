@@ -1,4 +1,4 @@
-namespace HelpfulTypesAndExtensions;
+namespace HelpfulTypesAndExtensions.Errors;
 
 public static class TaskingErrors
 {

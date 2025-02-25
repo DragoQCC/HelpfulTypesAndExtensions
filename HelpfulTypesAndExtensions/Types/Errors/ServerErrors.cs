@@ -1,77 +1,121 @@
-namespace HelpfulTypesAndExtensions;
+namespace HelpfulTypesAndExtensions.Errors;
 
-public static class ClientErrors
+/// <summary>
+/// Includes
+/// GenericFailure,  
+///Unexpected,  
+///ServiceUnavailable,  
+///CircuitBreaker,  
+///DependencyFailure,  
+///DataIntegrity,  
+///PreconditionFailed  
+/// </summary>
+public static class ServerErrors
 {
-    public static ValidationFailureError ValidationFailure(string? message = null)
+    public static GenericFailureError GenericFailure(string? message = null)
     {
-        var error = new ValidationFailureError();
-        return error.SetMessage(message);
+        var genericFailureError = new GenericFailureError();
+        return genericFailureError.SetMessage(message);
     }
-    public static BadRequestError BadRequest(string? message = null)
+    public static UnexpectedError Unexpected(string? message = null)
     {
-        var badRequestError = new BadRequestError();
-        return badRequestError.SetMessage(message);
+        var unexpectedError = new UnexpectedError();
+        return unexpectedError.SetMessage(message);
     }
-    public static NotFoundError NotFound(string? message = null)
+    public static ServiceUnavailableError ServiceUnavailable(string? message = null)
     {
-        var notFoundError = new NotFoundError();
-        return notFoundError.SetMessage(message);
+        var serviceUnavailableError = new ServiceUnavailableError();
+        return serviceUnavailableError.SetMessage(message);
     }
-    public static UnauthorizedError Unauthorized(string? message = null)
+    public static CircuitBreakerError CircuitBreaker(string? message = null)
     {
-        var unauthorizedError = new UnauthorizedError();
-        return unauthorizedError.SetMessage(message);
+        var circuitBreakerError = new CircuitBreakerError();
+        return circuitBreakerError.SetMessage(message);
     }
-    public static ForbiddenError Forbidden(string? message = null)
+    public static DependencyFailureError DependencyFailure(string? message = null)
     {
-        var forbiddenError = new ForbiddenError();
-        return forbiddenError.SetMessage(message);
+        var dependencyFailureError = new DependencyFailureError();
+        return dependencyFailureError.SetMessage(message);
     }
-    public static MissingAuthenticationError MissingAuthentication(string? message = null)
+    public static DataIntegrityError DataIntegrity(string? message = null)
     {
-        var missingAuthenticationError = new MissingAuthenticationError();
-        return missingAuthenticationError.SetMessage(message);
+        var dataIntegrityError = new DataIntegrityError();
+        return dataIntegrityError.SetMessage(message);
     }
-    public static InvalidOperationError InvalidOperation(string? message = null)
+    public static PreconditionFailedError PreconditionFailed(string? message = null)
     {
-        var invalidOperationError = new InvalidOperationError();
-        return invalidOperationError.SetMessage(message);
+        var preconditionFailedError = new PreconditionFailedError();
+        return preconditionFailedError.SetMessage(message);
     }
 
-    public record struct ValidationFailureError() : IClientError<ValidationFailureError>
+    public record struct GenericFailureError() : IServerError<GenericFailureError>
     {
         /// <inheritdoc />
-        public string Name { get; set; } = "Validation Failure";
+        public string Name { get; } = "Generic Failure";
+        
+        /// <inheritdoc />
+        public string? Message { get; set; } = "A generic failure occurred";
+        
+        /// <inheritdoc />
+        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
+        
+        /// <inheritdoc />
+        public string? Source { get; set; } = "";
+        
+        /// <inheritdoc />
+        public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
+        
+        /// <inheritdoc />
+        public ErrorType Type { get; set; } = ErrorType.GenericFailure;
+        
+        /// <inheritdoc />
+        public IError? InnerError { get; set; } = null;
+        
+        /// <inheritdoc />
+        public IDictionary<string, object>? MetaData { get; set; } = null;
+    }
+
+    public record struct UnexpectedError() : IServerError<UnexpectedError>
+    {
+        /// <inheritdoc />
+        public string Name { get; } = "Unexpected Error";
+
 
         /// <inheritdoc />
-        public string? Message { get; set; } = "A validation error occurred";
-        
+        public string? Message { get; set; } = "An unexpected error occurred";
+
+
         /// <inheritdoc />
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
-        
+
+
         /// <inheritdoc />
         public string? Source { get; set; } = "";
-        
+
+
         /// <inheritdoc />
         public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
-        
+
+
         /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.ValidationFailure;
-        
+        public ErrorType Type { get; set; } = ErrorType.Unexpected;
+
+
         /// <inheritdoc />
         public IError? InnerError { get; set; } = null;
-        
+
+
         /// <inheritdoc />
-        public IDictionary<string, object>? MetaData { get; set; } = null; 
+        public IDictionary<string, object>? MetaData { get; set; } = null;
     }
     
-    public record struct BadRequestError() : IClientError<BadRequestError>
+    public record struct ServiceUnavailableError() : IServerError<ServiceUnavailableError>
     {
         /// <inheritdoc />
-        public string Name { get; } = "Bad Request";
+        public string Name { get; } = "Service Unavailable";
         
         /// <inheritdoc />
-        public string? Message { get; set; } = "The request was malformed or invalid";
+        public string? Message { get; set; } = "The service is currently unavailable";
         
         /// <inheritdoc />
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
@@ -83,7 +127,7 @@ public static class ClientErrors
         public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
         
         /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.BadRequest;
+        public ErrorType Type { get; set; } = ErrorType.ServiceUnavailable;
         
         /// <inheritdoc />
         public IError? InnerError { get; set; } = null;
@@ -92,13 +136,13 @@ public static class ClientErrors
         public IDictionary<string, object>? MetaData { get; set; } = null;
     }
     
-    public record struct NotFoundError() : IClientError<NotFoundError>
+    public record struct CircuitBreakerError() : IServerError<CircuitBreakerError>
     {
         /// <inheritdoc />
-        public string Name { get; } = "Not Found"; 
+        public string Name { get; } = "Circuit Breaker";
         
         /// <inheritdoc />
-        public string? Message { get; set; } = "The requested resource was not found";
+        public string? Message { get; set; } = "The circuit breaker has been tripped";
         
         /// <inheritdoc />
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
@@ -110,7 +154,7 @@ public static class ClientErrors
         public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
         
         /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.NotFound;
+        public ErrorType Type { get; set; } = ErrorType.CircuitBreaker;
         
         /// <inheritdoc />
         public IError? InnerError { get; set; } = null;
@@ -119,13 +163,13 @@ public static class ClientErrors
         public IDictionary<string, object>? MetaData { get; set; } = null;
     }
     
-    public record struct UnauthorizedError() : IClientError<UnauthorizedError>
+    public record struct DependencyFailureError() : IServerError<DependencyFailureError>
     {
         /// <inheritdoc />
-        public string Name { get; } = "Unauthorized";
+        public string Name { get; } = "Dependency Failure";
         
         /// <inheritdoc />
-        public string? Message { get; set; } = "The request was unauthorized";
+        public string? Message { get; set; } = "A dependency failure occurred";
         
         /// <inheritdoc />
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
@@ -137,7 +181,7 @@ public static class ClientErrors
         public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
         
         /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.Unauthorized;
+        public ErrorType Type { get; set; } = ErrorType.DependencyFailure;
         
         /// <inheritdoc />
         public IError? InnerError { get; set; } = null;
@@ -146,13 +190,13 @@ public static class ClientErrors
         public IDictionary<string, object>? MetaData { get; set; } = null;
     }
     
-    public record struct ForbiddenError() : IClientError<ForbiddenError>
+    public record struct DataIntegrityError() : IServerError<DataIntegrityError>
     {
         /// <inheritdoc />
-        public string Name { get; }  = "Forbidden";
+        public string Name { get; } = "Data Integrity";
         
         /// <inheritdoc />
-        public string? Message { get; set; } = "The request was forbidden";
+        public string? Message { get; set; } = "A data integrity error occurred";
         
         /// <inheritdoc />
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
@@ -164,7 +208,7 @@ public static class ClientErrors
         public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
         
         /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.Forbidden;
+        public ErrorType Type { get; set; } = ErrorType.DataIntegrity;
         
         /// <inheritdoc />
         public IError? InnerError { get; set; } = null;
@@ -173,13 +217,13 @@ public static class ClientErrors
         public IDictionary<string, object>? MetaData { get; set; } = null;
     }
     
-    public record struct MissingAuthenticationError() : IClientError<MissingAuthenticationError>
+    public record struct PreconditionFailedError() : IServerError<PreconditionFailedError>
     {
         /// <inheritdoc />
-        public string Name { get; }  = "Missing Authentication";
+        public string Name { get; } = "Precondition Failed";
         
         /// <inheritdoc />
-        public string? Message { get; set; } = "The request was missing authentication";
+        public string? Message { get; set; } = "A precondition failed error occurred";
         
         /// <inheritdoc />
         public DateTime CreationTime { get; set; } = DateTime.UtcNow;
@@ -191,7 +235,7 @@ public static class ClientErrors
         public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
         
         /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.MissingAuthentication;
+        public ErrorType Type { get; set; } = ErrorType.PreconditionFailed;
         
         /// <inheritdoc />
         public IError? InnerError { get; set; } = null;
@@ -199,32 +243,5 @@ public static class ClientErrors
         /// <inheritdoc />
         public IDictionary<string, object>? MetaData { get; set; } = null;
     }
-    
-    public record struct InvalidOperationError() : IClientError<InvalidOperationError>
-    {
-        /// <inheritdoc />
-        public string Name { get; } =  "Invalid Operation";
-        
-        /// <inheritdoc />
-        public string? Message { get; set; } = "An invalid operation was attempted";
-        
-        /// <inheritdoc />
-        public DateTime CreationTime { get; set; } = DateTime.UtcNow;
-        
-        /// <inheritdoc />
-        public string? Source { get; set; } = "";
-        
-        /// <inheritdoc />
-        public ErrorSeverity PriorityLevel { get; set; } = ErrorSeverity.Medium;
-        
-        /// <inheritdoc />
-        public ErrorType Type { get; set; } = ErrorType.InvalidOperation;
-        
-        /// <inheritdoc />
-        public IError? InnerError { get; set; } = null;
-        
-        /// <inheritdoc />
-        public IDictionary<string, object>? MetaData { get; set; } = null;
-    }
-    
+
 }

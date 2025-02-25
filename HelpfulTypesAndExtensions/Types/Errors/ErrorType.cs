@@ -1,4 +1,4 @@
-namespace HelpfulTypesAndExtensions;
+namespace HelpfulTypesAndExtensions.Errors;
 
 public partial record struct ErrorType : IEnumeration<ErrorType>
 {

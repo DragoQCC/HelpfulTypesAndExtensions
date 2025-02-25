@@ -1,5 +1,6 @@
 using FluentAssertions;
 using HelpfulTypesAndExtensions;
+using HelpfulTypesAndExtensions.Errors;
 
 namespace HelpFulTypesAndExtensions.Tests.Unit;
 

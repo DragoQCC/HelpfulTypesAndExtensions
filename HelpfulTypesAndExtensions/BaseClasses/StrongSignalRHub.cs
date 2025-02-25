@@ -1,6 +1,8 @@
-﻿namespace HelpfulTypesAndExtensions;
+﻿using Microsoft.AspNetCore.SignalR;
 
-#if NETCORE
+namespace HelpfulTypesAndExtensions;
+
+#if NETCOREAPP
 /// <summary>
 /// A strongly typed SignalR hub, that implements the ISignalRHubModel interface and has a strongly typed client model <br/>
 /// Extend the <see cref="ISignalRHubModel"/> to define the methods inside the hub <br/>
