@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 
 namespace HelpfulTypesAndExtensions;
 
@@ -47,5 +48,45 @@ public static class TaskExtensions
     public static ConfiguredValueTaskAwaitable IgnoreContext(this ValueTask task)
     {
         return task.ConfigureAwait(false);
+    }
+    
+    /// <summary>
+    /// Allows for a safe way to fire and forget a task in situations where it would otherwise not be possible such as a constructor <br/>
+    /// </summary>
+    /// <param name="task"></param>
+    /// <param name="onError"></param>
+    /// <param name="continueOnCapturedContext"></param>
+    public static async void FireAndForget(this Task task, Action<Exception>? onError = null, bool continueOnCapturedContext = false)
+    {
+        try
+        {
+            await task.ConfigureAwait(continueOnCapturedContext);
+        }
+        catch (Exception e) when (onError is not null)
+        {
+            onError?.Invoke(e);
+        }
+        catch (Exception e)
+        {
+            //Should help maintain the stack trace
+            ExceptionDispatchInfo.Capture(e).Throw();
+        }
+    }
+    
+    public static async void FireAndForget(this ValueTask task, Action<Exception>? onError = null, bool continueOnCapturedContext = false)
+    {
+        try
+        {
+            await task.ConfigureAwait(continueOnCapturedContext);
+        }
+        catch (Exception e) when (onError is not null)
+        {
+            onError?.Invoke(e);
+        }
+        catch (Exception e)
+        {
+            //Should help maintain the stack trace
+            ExceptionDispatchInfo.Capture(e).Throw();
+        }
     }
 }

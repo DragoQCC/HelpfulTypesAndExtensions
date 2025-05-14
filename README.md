@@ -176,7 +176,14 @@ public void DoSomething2()
 ### `EmptyExtensions` - Provides extension methods for working with the Empty class
 ### `GenericExtensions` - Provides extension methods for working with generic types
 ### `StringExtensions` - Provides extension methods for working with strings
+
 ### `TaskExtensions` - Provides extension methods for working with Tasks
+  - `FireAndForget` - Allows for a safe way to fire and forget a task in situations where it would otherwise not be possible such as a constructor
+  - `ToEmpty` - Converts a Task to an Empty type
+  - `IgnoreContext` - Sets the task to ignore the current context
+  - `WaitAndUnwrapException` - Waits for the task to complete and unwraps any exceptions that occur
+  
+
 ### `TGuidExtensions` - Provides extension methods for working with TGuids
 ### `TypeExtensions` - Provides extension methods for working with types
 ### `UriExtensions` - Provides extension methods for working with URIs

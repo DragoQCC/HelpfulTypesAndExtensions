@@ -1,0 +1,8 @@
+﻿<Solution>
+  <Folder Name="/SolutionItems/">
+    <File Path=".github\workflows\publish.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="HelpFulTypesAndExtensions.Tests.Unit\HelpFulTypesAndExtensions.Tests.Unit.csproj" Type="Classic C#" />
+  <Project Path="HelpfulTypesAndExtensions\HelpfulTypesAndExtensions.csproj" Type="Classic C#" />
+</Solution>
