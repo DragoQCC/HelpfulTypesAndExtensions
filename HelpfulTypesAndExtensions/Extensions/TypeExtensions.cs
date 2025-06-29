@@ -8,7 +8,7 @@ public static class TypeExtensions
     internal static readonly ConcurrentDictionary<MethodBase, IReadOnlyList<Type>> ParameterMap = new ConcurrentDictionary<MethodBase, IReadOnlyList<Type>>();
     
     
-    #if NETCORE
+    #if NET
     /// <summary>
     /// Returns the first interface that the type implements from the list of interfaces
     /// </summary>

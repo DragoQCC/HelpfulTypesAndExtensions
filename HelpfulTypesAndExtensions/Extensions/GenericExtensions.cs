@@ -255,7 +255,7 @@ public static class GenericExtensions
     public static T? And<T>(this bool checkResult, T item) => checkResult ? item : default;
     
     
-    #if NETCORE 
+    #if NET 
     /// <summary>
     /// Throws an exception if the supplied item is null
     /// Will include the method name, file path, line number, and a custom message
